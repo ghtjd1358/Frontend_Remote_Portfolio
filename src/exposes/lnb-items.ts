@@ -8,14 +8,14 @@ export interface LnbItem {
 
 export const lnbItems: LnbItem[] = [
   {
-    title: '포트폴리오',
-    link: '/portfolio#portfolio',
-    searchStr: '포트폴리오,실무,portfolio',
+    title: '주요 프로젝트',
+    link: '#portfolio',
+    searchStr: '포트폴리오,주요,메인,portfolio',
   },
   {
-    title: '토이 프로젝트',
-    link: '/portfolio#toy',
-    searchStr: '토이,사이드,toy,side',
+    title: '기타 프로젝트',
+    link: '#other',
+    searchStr: '기타,사이드,other',
   },
 ];
 

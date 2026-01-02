@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkremote3=self.webpackChunkremote3||[]).push([[344],{344(t,o,e){e.r(o),e.d(o,{default:()=>l,lnbItems:()=>r});var r=[{title:"포트폴리오",link:"/portfolio#portfolio",searchStr:"포트폴리오,실무,portfolio"},{title:"토이 프로젝트",link:"/portfolio#toy",searchStr:"토이,사이드,toy,side"}];const l=r}}]);
-//# sourceMappingURL=344.f70e61ebd3c199e5fc49.js.map

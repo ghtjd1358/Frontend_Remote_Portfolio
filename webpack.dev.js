@@ -1,4 +1,4 @@
-// �?Phase 3: 개발 ?�경 ?�정
+// �?Phase 3: 개발 ?�경 ?�정
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const path = require('path');
@@ -11,9 +11,13 @@ module.exports = merge(common, {
     static: {
       directory: path.join(__dirname, 'public')
     },
-    port: 3003,
+    port: 5003,
     hot: true,
     open: true,
-    historyApiFallback: true
+    historyApiFallback: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    setupExitSignals: true
   }
 });

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getPortfolios, PortfolioSummary } from './network';
+import { ScrollTopButton } from './components/button';
+import { usePortfolios } from './hooks';
+import { navSections } from './data';
 import './global.css';
 
 // 스크롤 애니메이션 훅
-const useScrollAnimation = () => {
+const useScrollAnimation = (dependencies: any[] = []) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -20,36 +22,30 @@ const useScrollAnimation = () => {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, dependencies);
 };
 
 const App: React.FC = () => {
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const [portfolios, setPortfolios] = useState<PortfolioSummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('');
+  const { portfolios, featuredProjects, otherProjects, loading } = usePortfolios();
 
-  useScrollAnimation();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getPortfolios();
-        if (res.success && res.data) {
-          setPortfolios(res.data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching portfolios:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  useScrollAnimation([portfolios]);
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollBtn(window.scrollY > 100);
+      const viewportHeight = window.innerHeight;
+      const triggerPoint = viewportHeight * 0.2;
+
+      for (const section of navSections) {
+        const element = document.getElementById(section.id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= triggerPoint && rect.bottom > triggerPoint) {
+            setActiveSection(section.id);
+            break;
+          }
+        }
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -59,10 +55,15 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 주요 프로젝트 (is_featured)
-  const featuredProjects = portfolios.filter(p => p.is_featured);
-  // 나머지 프로젝트
-  const otherProjects = portfolios.filter(p => !p.is_featured);
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 60;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    }
+  };
 
   if (loading) {
     return (
@@ -74,12 +75,50 @@ const App: React.FC = () => {
 
   return (
     <div className="portfolio-module">
+      {/* 히어로 */}
+      <section className="hero portfolio-hero">
+        <div className="container">
+          <div className="hero-content">
+            <h1 className="hero-title">
+              만들어온<br />
+              프로젝트들
+            </h1>
+            <p className="hero-desc">
+              실무와 사이드 프로젝트를 통해 성장해온 기록입니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 섹션 네비게이션 바 */}
+      <div className="sticky-nav-wrapper">
+        <nav className="sticky-nav">
+          <button className="nav-logo-dots" onClick={scrollToTop}>
+            <span className="dot blue"></span>
+            <span className="dot green"></span>
+            <span className="dot lime"></span>
+          </button>
+          <ul className="nav-pills">
+            {navSections.map((section) => (
+              <li key={section.id}>
+                <button
+                  className={`nav-pill ${activeSection === section.id ? 'active' : ''}`}
+                  onClick={() => scrollToSection(section.id)}
+                >
+                  {section.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
       {/* 주요 포트폴리오 */}
       <section id="portfolio" className="section">
         <div className="container">
           <div className="section-header animate-on-scroll">
             <div className="section-label">Portfolio</div>
-            <h2 className="section-title">포트폴리오</h2>
+            <h1 className="section-title">포트폴리오</h1>
           </div>
 
           {featuredProjects.length === 0 && otherProjects.length === 0 ? (
@@ -154,16 +193,7 @@ const App: React.FC = () => {
       )}
 
       {/* 스크롤 탑 버튼 */}
-      <button
-        className={`scroll-top-btn ${showScrollBtn ? 'visible' : ''}`}
-        onClick={scrollToTop}
-        title="맨 위로"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="17 11 12 6 7 11"></polyline>
-          <polyline points="17 18 12 13 7 18"></polyline>
-        </svg>
-      </button>
+      <ScrollTopButton />
     </div>
   );
 };

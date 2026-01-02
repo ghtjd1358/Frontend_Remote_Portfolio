@@ -7,7 +7,9 @@
       "Bash(taskkill:*)",
       "Bash(ls:*)",
       "Bash(find:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(node scripts/seed-data.mjs:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
