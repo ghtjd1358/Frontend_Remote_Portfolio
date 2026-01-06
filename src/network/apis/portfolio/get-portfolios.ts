@@ -1,8 +1,10 @@
-import { supabase, ApiResponse, PageListResponse } from '../common';
+import { supabaseAxios } from '../../axios-instance';
+import { ApiResponse, PageListResponse } from '../common';
 import { PortfolioSearchCondition, PortfolioSummary } from './types';
 
 /**
  * 포트폴리오 목록을 조회합니다.
+ * Supabase REST API (PostgREST) 사용
  */
 export async function getPortfolios(
   params: PortfolioSearchCondition = {}
@@ -11,71 +13,84 @@ export async function getPortfolios(
     const { page = 1, limit = 12, categoryId, status, isFeatured, isPublic, search, userId } = params;
     const offset = (page - 1) * limit;
 
-    let query = supabase
-      .from('portfolios')
-      .select(`
-        *,
-        category:portfolio_categories(id, name, slug, description),
-        tags:portfolio_tags(id, tag, order_index),
-        detail:portfolio_details(*),
-        techStack:portfolio_tech_stack(id, name, icon, icon_color, order_index)
-      `, { count: 'exact' });
+    // PostgREST 쿼리 파라미터 구성
+    const queryParams: Record<string, string> = {
+      select: `*,category:portfolio_categories(id,name,slug,description),tags:portfolio_tags(id,tag,order_index),detail:portfolio_details(*),techStack:portfolio_tech_stack(id,name,icon,icon_color,order_index)`,
+      order: 'is_featured.desc,order_index.asc',
+    };
+
+    // 필터 조건 추가
+    const filters: string[] = [];
 
     // 공개 여부 필터
     if (isPublic !== undefined) {
-      query = query.eq('is_public', isPublic);
+      filters.push(`is_public=eq.${isPublic}`);
     } else {
-      query = query.eq('is_public', true);
+      filters.push('is_public=eq.true');
     }
 
     // 상태 필터
     if (status) {
-      query = query.eq('status', status);
+      filters.push(`status=eq.${status}`);
     }
 
     // 카테고리 필터
     if (categoryId) {
-      query = query.eq('category_id', categoryId);
+      filters.push(`category_id=eq.${categoryId}`);
     }
 
     // 사용자 필터
     if (userId) {
-      query = query.eq('user_id', userId);
+      filters.push(`user_id=eq.${userId}`);
     }
 
     // 추천 필터
     if (isFeatured !== undefined) {
-      query = query.eq('is_featured', isFeatured);
+      filters.push(`is_featured=eq.${isFeatured}`);
     }
 
     // 검색어 필터
     if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      filters.push(`or=(title.ilike.*${search}*,description.ilike.*${search}*)`);
     }
 
-    // 정렬 및 페이지네이션
-    query = query
-      .order('is_featured', { ascending: false })
-      .order('order_index', { ascending: true })
-      .range(offset, offset + limit - 1);
+    // URL 구성
+    const filterString = filters.join('&');
+    const url = `/portfolios?${filterString}`;
 
-    const { data, error, count } = await query;
+    const response = await supabaseAxios.get<PortfolioSummary[]>(url, {
+      params: queryParams,
+      headers: {
+        'Range': `${offset}-${offset + limit - 1}`,
+        'Prefer': 'count=exact',
+      },
+    });
 
-    if (error) {
-      return { success: false, error: error.message };
+    // Content-Range 헤더에서 총 개수 추출 (예: "0-11/25")
+    const contentRange = response.headers['content-range'];
+    let total = 0;
+    if (contentRange) {
+      const match = contentRange.match(/\/(\d+)/);
+      if (match) {
+        total = parseInt(match[1], 10);
+      }
     }
 
     return {
       success: true,
       data: {
-        data: data || [],
-        total: count || 0,
+        data: response.data || [],
+        total,
         page,
         limit,
-        totalPages: Math.ceil((count || 0) / limit),
+        totalPages: Math.ceil(total / limit),
       },
     };
-  } catch (err) {
-    return { success: false, error: '포트폴리오 목록 조회 중 오류가 발생했습니다.' };
+  } catch (err: any) {
+    console.error('Error fetching portfolios:', err);
+    return {
+      success: false,
+      error: err.response?.data?.message || '포트폴리오 목록 조회 중 오류가 발생했습니다.'
+    };
   }
 }
