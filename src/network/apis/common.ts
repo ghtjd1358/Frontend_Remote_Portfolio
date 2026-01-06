@@ -1,5 +1,3 @@
-import { supabase } from '../../lib/supabase';
-
 /**
  * API 응답 공통 타입
  */
@@ -37,5 +35,3 @@ export type SortOrder = 'asc' | 'desc';
  * 포트폴리오 상태
  */
 export type PortfolioStatus = 'draft' | 'published' | 'archived';
-
-export { supabase };

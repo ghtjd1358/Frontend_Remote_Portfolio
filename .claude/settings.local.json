@@ -9,7 +9,16 @@
       "Bash(find:*)",
       "Bash(npm run build:*)",
       "Bash(node scripts/seed-data.mjs:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(dir /s /b \"C:\\Coding\\KOMCA\\lib\\komca-frontend-common-lib\\*.ts\")",
+      "Bash(npm install:*)",
+      "Bash(npm run dev)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "WebFetch(domain:localhost)",
+      "Bash(curl:*)"
     ]
   }
 }
