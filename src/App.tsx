@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollTopButton } from './components/button';
+import { ScrollTopButton } from '@mfa/lib';
 import { usePortfolios } from './hooks';
 import { navSections } from './data';
 import './global.css';
@@ -23,6 +23,14 @@ const useScrollAnimation = (dependencies: any[] = []) => {
 
     return () => observer.disconnect();
   }, dependencies);
+};
+
+// Bento 그리드 카드 사이즈 결정
+const getBentoSize = (index: number, total: number): string => {
+  if (total === 1) return 'size-large';
+  if (total === 2) return index === 0 ? 'size-large' : 'size-wide';
+  const pattern = ['size-large', 'size-tall', 'size-normal', 'size-normal', 'size-wide', 'size-normal'];
+  return pattern[index % pattern.length];
 };
 
 const App: React.FC = () => {
@@ -122,40 +130,42 @@ const App: React.FC = () => {
           </div>
 
           {featuredProjects.length === 0 && otherProjects.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
-              아직 등록된 포트폴리오가 없습니다.
+            <div className="empty-state">
+              <div className="empty-state-icon">📁</div>
+              <p className="empty-state-text">아직 등록된 포트폴리오가 없습니다.</p>
             </div>
           ) : (
-            <div className="project-list">
+            <div className="bento-grid">
               {featuredProjects.map((project, index) => (
-                <article key={project.id} className={`project-card featured animate-on-scroll delay-${index + 1}`}>
-                  <div className="project-thumbnail">
-                    {project.badge || '🚀'}
-                  </div>
-                  <div className="project-info">
-                    <h3 className="project-title">{project.title}</h3>
-                    <p className="project-desc">{project.short_description || project.description}</p>
-
-                    {/* 기술 스택 태그 */}
-                    <div className="project-tags">
-                      {project.techStack?.slice(0, 4).map((tech) => (
-                        <span key={tech.id} className="project-tag" style={{ borderColor: tech.icon_color || undefined }}>
-                          {tech.name}
-                        </span>
-                      ))}
+                <article
+                  key={project.id}
+                  className={`bento-card ${getBentoSize(index, featuredProjects.length)} animate-on-scroll delay-${Math.min(index + 1, 5)}`}
+                >
+                  {index === 0 && <span className="bento-badge">Featured</span>}
+                  <div className="bento-card-inner">
+                    <div className="bento-thumbnail">
+                      {project.badge || '🚀'}
                     </div>
-
-                    {/* 상세 정보 */}
-                    {project.detail && (
-                      <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '8px' }}>
-                        {project.detail.period && <span>📅 {project.detail.period}</span>}
-                        {project.detail.role && <span style={{ marginLeft: '12px' }}>👤 {project.detail.role}</span>}
+                    <div className="bento-content">
+                      <h3 className="bento-title">{project.title}</h3>
+                      <p className="bento-desc">{project.short_description || project.description}</p>
+                      <div className="bento-tags">
+                        {project.techStack?.slice(0, 4).map((tech) => (
+                          <span key={tech.id} className="bento-tag">
+                            {tech.name}
+                          </span>
+                        ))}
                       </div>
-                    )}
-
-                    <div className="project-links">
-                      <a href="#" className="project-link primary">자세히 보기</a>
-                      <a href="#" className="project-link secondary">GitHub</a>
+                      {project.detail && (
+                        <div className="bento-meta">
+                          {project.detail.period && <span className="bento-meta-item">📅 {project.detail.period}</span>}
+                          {project.detail.role && <span className="bento-meta-item">👤 {project.detail.role}</span>}
+                        </div>
+                      )}
+                      <div className="bento-links">
+                        <a href="#" className="bento-link primary">자세히 보기</a>
+                        <a href="#" className="bento-link secondary">GitHub</a>
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -174,15 +184,15 @@ const App: React.FC = () => {
               <h2 className="section-title">기타 프로젝트</h2>
             </div>
 
-            <div className="project-grid">
+            <div className="other-projects-grid">
               {otherProjects.map((project, index) => (
-                <article key={project.id} className={`project-card-small animate-on-scroll delay-${Math.min(index + 1, 5)}`}>
-                  <div className="project-thumbnail-small">{project.badge || '📁'}</div>
-                  <h3 className="project-title-small">{project.title}</h3>
-                  <p className="project-desc-small">{project.short_description || ''}</p>
-                  <div className="project-tags">
+                <article key={project.id} className={`other-project-card animate-on-scroll delay-${Math.min(index + 1, 5)}`}>
+                  <div className="other-project-thumbnail">{project.badge || '📁'}</div>
+                  <h3 className="other-project-title">{project.title}</h3>
+                  <p className="other-project-desc">{project.short_description || ''}</p>
+                  <div className="other-project-tags">
                     {project.tags?.slice(0, 3).map((tag) => (
-                      <span key={tag.id} className="project-tag-small">{tag.tag}</span>
+                      <span key={tag.id} className="other-project-tag">{tag.tag}</span>
                     ))}
                   </div>
                 </article>
