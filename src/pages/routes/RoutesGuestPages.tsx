@@ -1,20 +1,20 @@
 /**
  * RoutesGuestPages - KOMCA 패턴
  * 비로그인 사용자용 라우트
+ * Host에서 /portfolio/* 경로로 매핑됨
  */
 
 import React, { lazy } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { RoutePath } from './paths';
+import { Route, Routes } from 'react-router-dom';
 
 const HomePage = lazy(() => import('../home/HomePage'));
 
 function RoutesGuestPages() {
     return (
         <Routes>
-            <Route path={RoutePath.Home} element={<HomePage />} />
-            <Route path={RoutePath.Portfolio} element={<HomePage />} />
-            <Route path="*" element={<Navigate to={RoutePath.Home} replace />} />
+            {/* /portfolio → HomePage */}
+            <Route path="/" element={<HomePage />} />
+            {/* catch-all 제거 - Host가 다른 경로 처리 */}
         </Routes>
     );
 }
