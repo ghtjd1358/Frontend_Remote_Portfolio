@@ -3,8 +3,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ScrollTopButton } from '@mfa/lib';
-import { usePortfolios } from '../../hooks';
+import { ScrollTopButton } from '@sonhoseong/mfa-lib';
+import { usePortfolios } from './hooks';
 import { navSections } from '../../data';
 
 // 스크롤 애니메이션 훅

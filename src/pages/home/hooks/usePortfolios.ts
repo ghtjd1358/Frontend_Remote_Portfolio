@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getPortfolios, PortfolioSummary } from '../network';
-import { PortfolioSearchCondition } from '../network/apis/portfolio/types';
+import { getPortfolios, PortfolioSummary } from '../../../network';
+import { PortfolioSearchCondition } from '../../../network/apis/portfolio/types';
 
 type UsePortfoliosReturn = {
   portfolios: PortfolioSummary[];

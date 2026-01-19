@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sonhoseong/mfa-lib": "^1.0.0",
     "@reduxjs/toolkit": "^2.11.2",
     "@supabase/supabase-js": "^2.89.0",
     "axios": "^1.13.2",
